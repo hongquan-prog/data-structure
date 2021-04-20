@@ -1,22 +1,24 @@
 #include "StaticLinkList.h"
+#include "CircleList.h"
+#include "SharedPointer.h"
 #include <iostream>
+
+void josephus(int n, int s, int m)
+{
+    DataStructure::CircleList<int> list;
+    for(int i = 1; i <= n; i++)
+    {
+        list.insert(i);
+    }
+
+    for(list.move(2, m - 1); list.length() > 0; list.next())
+    {
+        std::cout << list.current() <<std::endl;
+        list.remove(list.find(list.current()));
+    }
+}
 
 int main()
 {
-    DataStructure::StaticLinkList<int, 10> val;
-
-    for(int i = 0; i < 5; i++)
-    {
-        val.insert(i);
-    }
-
-    for(val.move(0); !val.end(); val.next())
-    {
-        if(val.current() == 3)
-        {
-            val.remove(val.find(val.current()));
-            std::cout << val.current() << std::endl;
-        }
-        std::cout<< val.current() << std::endl;
-    }
+    josephus(41, 1, 3);
 }

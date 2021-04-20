@@ -111,7 +111,7 @@ namespace DataStructure
             return false;
         }
 
-        T get(int i) const
+        virtual T get(int i) const
         {
             T ret = 0;
 
@@ -142,13 +142,12 @@ namespace DataStructure
         //O(n)
         void clear(void)
         {
-            Node * current = reinterpret_cast<Node *>(&m_head);
-            while(current->next)
+            while(m_head.next)
             {
-                Node * del = current->next;
-                current->next = del->next;
-                destroy(del);
+                Node * del = m_head.next;
+                m_head.next = del->next;
                 --m_length;
+                destroy(del);
             }
         }
         //O(n)
@@ -173,7 +172,7 @@ namespace DataStructure
             return -1;
         }
 
-        bool move(int i, int step = 1)
+        virtual bool move(int i, int step = 1)
         {
             bool ret = (i >= 0 && i < m_length && step > 0);
 
@@ -185,17 +184,17 @@ namespace DataStructure
             return ret;
         }
 
-        bool end()
+        virtual bool end()
         {
             return (m_current == NULL);
         }
 
-        T current()
+        virtual T current()
         {
             return m_current->data;
         }
 
-        bool next()
+        virtual bool next()
         {
             int i = 0;
             while(!end() && (i < m_step))
