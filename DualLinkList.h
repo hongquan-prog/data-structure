@@ -1,30 +1,32 @@
 #pragma once
 
-#include <iostream>
 #include "List.h"
+#include <iostream>
 
 namespace DataStructure
 {
     template <typename T>
-    class LinkList:public List<T>
+    class DualLinkList:public List<T>
     {
     protected:
         struct Node
         {
             T data;
             Node* next;
+            Node* pre;
         };
 
         // 为了防止自定义类型无参构造函数抛出异常
         mutable struct{
             char reserve[sizeof(T)];
             Node* next;
+            Node* pre;
         }m_head;
-
+        
         int m_step;
         int m_length;
         Node * m_current;
-        
+
         //O(n)
         Node * position(int i) const     
         {
@@ -46,30 +48,43 @@ namespace DataStructure
             delete pn;
         }
     public:
-        LinkList()
+
+        DualLinkList()
         {
             m_current = NULL;
             m_step = 0;
             m_head.next = NULL;
+            m_head.pre = NULL;
             m_length = 0;
         }
+
         bool insert(const T& e)
         {
             return insert(m_length, e);
         }
-        //O(n)
         bool insert(int i, const T& e)
         {
-            bool ret = ((i >= 0) && (i <= m_length));
+            bool ret =  ((i >= 0) && (i <= m_length));
             if(ret)
             {
-                Node * temp = create();
-                if(temp)
+                Node* node = create();
+                if(node)
                 {
-                    Node * current = position(i);    
-                    temp->data = e;
-                    temp->next = current->next;
-                    current->next = temp;
+                    Node* current = position(i);
+                    Node* next = current->next;
+
+                    node->data = e;
+                    node->next = next;
+                    current->next = node;
+
+                    if(current != reinterpret_cast<Node *>(&m_head))
+                        node->pre = current;
+                    else
+                        node->pre = NULL;
+                    
+                    if(next != NULL)
+                        next->pre = node;
+
                     ++m_length;
                 }
                 else
@@ -77,25 +92,27 @@ namespace DataStructure
             }
             return ret;
         }
-        //O(n)
         bool remove(int i)
         {
-            bool ret = ((i >= 0) && (i < m_length));
-
+            bool ret =  ((i >= 0) && (i < m_length));
             if(ret)
             {
                 Node * current = position(i);
-                Node *del = current->next;
-                if(m_current == del)
+                Node * toDel = current->next;
+                Node * next = toDel->next;
+                //安全销毁
+                if(m_current == toDel)
                 {
-                    m_current = del->next;
+                    m_current = toDel->next;
                 }
-                current->next = del->next;
-                --m_length;
-                destroy(del);
-                return true;
+
+                current->next = next;
+                if(next != NULL)
+                    next->pre = current;
+                m_length--;
+                destroy(toDel);
             }
-            return false;
+            return ret;
         }
         //O(n)
         bool get(int i, T& e) const
@@ -121,6 +138,7 @@ namespace DataStructure
                 throw std::bad_alloc();
             return ret;
         }
+
         //O(n)
         bool set(int i, const T& e)
         {
@@ -134,22 +152,7 @@ namespace DataStructure
             }
             return false;
         }
-        //O(1)
-        int length(void) const
-        {
-            return m_length;
-        }
-        //O(n)
-        void clear(void)
-        {
-            while(m_head.next)
-            {
-                Node * del = m_head.next;
-                m_head.next = del->next;
-                --m_length;
-                destroy(del);
-            }
-        }
+
         //O(n)
         int find(const T& e) const
         {
@@ -170,6 +173,20 @@ namespace DataStructure
             }
             
             return -1;
+        }
+
+        //O(1)
+        int length(void) const
+        {
+            return m_length;
+        }
+        //O(n)
+        void clear(void)
+        {
+            while(m_length > 0)
+            {
+                remove(0);
+            }
         }
 
         virtual bool move(int i, int step = 1)
@@ -205,7 +222,18 @@ namespace DataStructure
             return (i == m_step);
         }
 
-        ~LinkList()
+        virtual bool pre()
+        {
+            int i = 0;
+            while(!end() && (i < m_step))
+            {
+                m_current = m_current->pre;
+                i++;
+            }
+            return (i == m_step);
+        }
+
+        ~DualLinkList()
         {
             clear();
         }
