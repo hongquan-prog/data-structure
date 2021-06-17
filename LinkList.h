@@ -1,42 +1,41 @@
 #pragma once
 
-#include <iostream>
 #include "List.h"
+#include "Exception.h"
 
-namespace DataStructure
+namespace data_structure
 {
     template <typename T>
     class LinkList:public List<T>
     {
     protected:
-        struct Node
+        struct Node:public Object
         {
-            T data;
-            Node* next;
+            T value;
+            Node * next;
         };
 
-        // 为了防止自定义类型无参构造函数抛出异常
-        mutable struct{
+        mutable struct:public Object
+        {
             char reserve[sizeof(T)];
             Node* next;
-        }m_head;
-
-        int m_step;
-        int m_length;
-        Node * m_current;
+        }m_header;
         
-        //O(n)
-        Node * position(int i) const     
+        int m_length;
+        int m_step;
+        Node * m_current;
+
+        Node * position(int position) const
         {
-            Node * current = reinterpret_cast<Node *>(&m_head);
-            for(int p = 0; p < i; p++)
+            Node * current = reinterpret_cast<Node *>(&m_header);
+            for(int i = 0; i < position; i++)
             {
                 current = current->next;
             }
-            return current;
+            return current; 
         }
 
-        virtual Node * create()
+        virtual Node * create(void)
         {
             return new Node;
         }
@@ -45,164 +44,182 @@ namespace DataStructure
         {
             delete pn;
         }
+
     public:
+
+        // O(1)
         LinkList()
         {
+            m_header.next = NULL;
             m_current = NULL;
             m_step = 0;
-            m_head.next = NULL;
             m_length = 0;
         }
+
+        // O(n)
         bool insert(const T& e)
         {
             return insert(m_length, e);
         }
-        //O(n)
+
+        // O(n)
         bool insert(int i, const T& e)
         {
-            bool ret = ((i >= 0) && (i <= m_length));
-            if(ret)
+            if(i >= 0 && i <= m_length)
             {
+                Node * current = position(i);
                 Node * temp = create();
-                if(temp)
+                if(temp != NULL)
                 {
-                    Node * current = position(i);    
-                    temp->data = e;
+                    temp->value = e;
                     temp->next = current->next;
                     current->next = temp;
-                    ++m_length;
+                    m_length ++;
                 }
-                else
-                    ret = false;
             }
-            return ret;
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "insert failed!");
+            }
+            return true;
         }
-        //O(n)
+
+        // O(n)
         bool remove(int i)
         {
-            bool ret = ((i >= 0) && (i < m_length));
-
-            if(ret)
+            if(i >= 0 && i < m_length)
             {
                 Node * current = position(i);
-                Node *del = current->next;
-                if(m_current == del)
-                {
-                    m_current = del->next;
-                }
-                current->next = del->next;
-                --m_length;
-                destroy(del);
-                return true;
+                Node * toDel = current->next;
+                if(toDel == m_current)
+                    m_current = toDel->next;
+                current->next = toDel->next;
+                m_length --;
+                destroy(toDel);
             }
-            return false;
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "remove failed!");
+            }
+            return true;
         }
-        //O(n)
+
+        // O(n)
+        int find(const T& e) const
+        {
+            int ret = -1;
+            int i = 0;
+            Node * node = m_header.next;
+
+            while(node)
+            {
+                if(node->value == e)
+                {
+                    ret = i;
+                    break;
+                }
+                else
+                {
+                    node = node->next;
+                    i++;
+                }
+            }
+
+            return ret;
+        }
+
+        // O(n)
         bool get(int i, T& e) const
         {
-            bool ret = ((i >= 0) && (i < m_length));
-
-            if(ret)
+            if(i >= 0 && i < m_length)
             {
-                Node * current = position(i);
-                e = current->next->data;
-                return true;
+                e = position(i)->next->value;
             }
-            return false;
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "get failed!");
+            }
+            return true;
         }
 
         virtual T get(int i) const
         {
-            T ret = 0;
-
-            if(get(i, ret))
-                return ret;
+            if(i >= 0 && i < m_length)
+            {
+                return position(i)->next->value;
+            }
             else
-                throw std::bad_alloc();
-            return ret;
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "get failed!");
+            }
+            return true;
         }
-        //O(n)
+
+        // O(n)
         bool set(int i, const T& e)
         {
-            bool ret = ((i >= 0) && (i < m_length));
-
-            if(ret)
+            if(i >= 0 && i < m_length)
             {
-                Node * current = position(i);
-                current->next->data = e;
-                return true;
+                position(i)->next->value = e;
             }
-            return false;
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "set failed!");
+            }
+            return true;
         }
-        //O(1)
+
+        // O(1)
         int length(void) const
         {
             return m_length;
         }
-        //O(n)
+
+        // O(n)
         void clear(void)
         {
-            while(m_head.next)
+            while(m_header.next)
             {
-                Node * del = m_head.next;
-                m_head.next = del->next;
-                --m_length;
-                destroy(del);
+                Node * toDel = m_header.next;
+                m_header.next = toDel->next;
+                destroy(toDel);
             }
         }
-        //O(n)
-        int find(const T& e) const
+
+        virtual bool move(int start, int step)
         {
-            int i = 0;
-
-            Node * current = reinterpret_cast<Node *>(&m_head); 
-            while (current->next)
+            bool ret = true;
+            if((start >= 0) && (start < m_length))
             {
-                if(current->next->data == e)
-                {
-                    return i;
-                }
-                else
-                {
-                    ++i;
-                    current = current->next;
-                }
-            }
-            
-            return -1;
-        }
-
-        virtual bool move(int i, int step = 1)
-        {
-            bool ret = (i >= 0 && i < m_length && step > 0);
-
-            if(ret)
-            {
-                m_current = position(i)->next;
+                m_current = position(start)->next;
                 m_step = step;
+            }
+            else
+            {
+                ret = false;
             }
             return ret;
         }
 
-        virtual bool end()
+        virtual bool end(void)
         {
             return (m_current == NULL);
         }
 
-        virtual T current()
-        {
-            return m_current->data;
-        }
-
-        virtual bool next()
+        virtual bool next(void)
         {
             int i = 0;
-            while(!end() && (i < m_step))
+            while(m_current && (i < m_step))
             {
-                m_current = m_current->next;
                 i++;
+                m_current = m_current->next;
             }
             return (i == m_step);
+        }
+
+        virtual T current(void)
+        {
+            return m_current->value;
         }
 
         ~LinkList()

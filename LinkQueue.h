@@ -1,16 +1,17 @@
+#pragma once
+
 #include "Queue.h"
 #include "LinkList.h"
-#include <iostream>
 
-namespace DataStructure
+namespace data_structure
 {
-    template <typename T, int N>
-    class LinkQueue:public Queue<T>
+    template <typename T>
+    class LinkQueue:Queue<T>
     {
     protected:
         LinkList<T> m_list;
-
     public:
+
         // O(n)
         void add(const T& e)
         {
@@ -18,23 +19,29 @@ namespace DataStructure
         }
 
         // O(1)
-        void remove(void)
+        void remove()
         {
-            if(m_list.length() > 0)
+            if(m_list.length())
             {
                 m_list.remove(0);
             }
             else
-                throw std::range_error("Stack is enpty!");
+            {
+                THROW_EXCEPTION(InvalidOperationException, "No element in current stack ...");
+            }
         }
 
         // O(1)
         T front() const
         {
-            if(m_list.length() > 0)
+            if(m_list.length())
+            {
                 return m_list.get(0);
+            }
             else
-                throw std::range_error("Stack is enpty!");
+            {
+                THROW_EXCEPTION(InvalidOperationException, "No element in current stack ...");
+            }
         }
 
         // O(n)
@@ -55,4 +62,5 @@ namespace DataStructure
             clear();
         }
     };
+    
 }

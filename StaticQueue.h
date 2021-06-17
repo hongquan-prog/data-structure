@@ -1,7 +1,8 @@
-#include "Queue.h"
-#include <iostream>
+#pragma once
 
-namespace DataStructure
+#include "Queue.h"
+
+namespace data_structure
 {
     template <typename T, int N>
     class StaticQueue:public Queue<T>
@@ -12,6 +13,7 @@ namespace DataStructure
         int m_front;
         int m_rear;
     public:
+
         // O(1)
         StaticQueue()
         {
@@ -21,48 +23,53 @@ namespace DataStructure
         }
 
         // O(1)
-        int capacity() const
-        {
-            return N;
-        }
-
-        // O(1)
         void add(const T& e)
         {
-            if(m_length < N)
+            if((m_length == N) && (m_rear == m_front))
+            {
+                THROW_EXCEPTION(InvalidOperationException, "No Space in current stack ...");
+            }
+            else
             {
                 m_space[m_rear] = e;
                 m_rear = (m_rear + 1) % N;
-                m_length++;
+                m_length ++;
             }
-            else
-                throw std::range_error("Queue is full!");
         }
-
+        
         // O(1)
         void remove()
         {
-            if(m_length > 0)
+            if((m_length == 0) && (m_rear == m_front))
+            {
+                THROW_EXCEPTION(InvalidOperationException, "No element in current stack ...");
+            }
+            else
             {
                 m_front = (m_front + 1) % N;
                 m_length--;
             }
-            else
-                throw std::range_error("Queue is empty!");
         }
 
         // O(1)
         T front() const
         {
-            return m_space[m_front];
+            if((m_length == 0) && (m_rear == m_front))
+            {
+                THROW_EXCEPTION(InvalidOperationException, "No element in current stack ...");
+            }
+            else
+            {
+                return m_space[m_front];
+            }
         }
 
         // O(1)
-        void clear(void)
+        void clear()
         {
+            m_front = 0;
             m_length = 0;
-            m_front = -1;
-            m_rear = -1;
+            m_rear = 0;
         }
 
         // O(1)
@@ -72,11 +79,16 @@ namespace DataStructure
         }
 
         // O(1)
+        int capacity() const
+        {
+            return N;
+        }
+        
+
+        // O(1)
         ~StaticQueue()
         {
             clear();
         }
     };
-    
-    
 }

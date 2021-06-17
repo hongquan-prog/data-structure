@@ -2,24 +2,25 @@
 
 #include "LinkList.h"
 
-namespace DataStructure
+namespace data_structure
 {
     template <typename T>
     class CircleList:public LinkList<T>
     {
     protected:
         typedef typename LinkList<T>::Node Node;
-        
+
         // O(n)
         Node * last(void)
         {
+            // 此处指向最后一个节点本身时，position后面还得加一个next
             return LinkList<T>::position(this->m_length - 1)->next;
         }
 
         // O(n)
         void last_to_first()
         {
-            last()->next = this->m_head.next;
+            last()->next = this->m_header.next;
         }
 
         // O(1)
@@ -28,8 +29,9 @@ namespace DataStructure
             if(this->m_length == 0)
                 return 0;
             else
-                return i % this->m_length;
+                return (i % this->m_length);
         }
+
     public:
 
         // O(n)
@@ -37,67 +39,69 @@ namespace DataStructure
         {
             return insert(this->m_length, e);
         }
-
-        // O(2n+1) = O(n)
+        
+        // O(n)
         bool insert(int i, const T& e)
         {
             bool ret = true;
-            // i 的区间在0～m_length之间，所以归一化还要加一
-            // O(1)
-            i = i % (this->m_length + 1);
-            // O(n)
+
+            i = (i % (this->m_length + 1));
             ret = LinkList<T>::insert(i, e);
-            if(i == 0)
-            {
-                // O(n)
+            if(ret && (0 == i))
                 last_to_first();
-            }
-            return ret;
-        }
-
-        // O(2n) = O(n)
-        bool remove(int i)
-        {
-            bool ret = true;
-
-            i = mod(i);
-            
-            // O(n)
-            if(i == 0)
-            {
-                Node * toDel = this->m_head.next;
-                if(toDel != NULL)
-                {
-                    this->m_head.next = toDel->next;
-                    this->m_length--;
-                    if(this->m_length > 0)
-                    {
-                        last_to_first();
-                        if(this->m_current == toDel)
-                            this->m_current = toDel->next;
-                    }
-                    else
-                    {
-                        this->m_current = NULL;
-                        this->m_head.next = NULL;
-                    }
-                    LinkList<T>::destroy(toDel);
-                }
-                else
-                {
-                    ret = false;
-                }
-            }
-            // O(n)
-            else
-                ret = LinkList<T>::remove(i);
             return ret;
         }
 
         // O(n)
-        bool set(int i, const T& e)
+        bool remove(int i)
         {
-            return LinkList<T>::set(mod(i), e);
+            bool ret = true;
+
+            if(mod(i) == 0)
+            {
+                Node * toDel = this->m_header.next;
+                this->m_header.next = toDel->next;
+                this->m_length --;
+                if(this->m_length == 0)
+                    this->m_header.next = NULL;
+                else
+                {
+                    last_to_first();
+                    if(this->m_current == toDel)
+                    {
+                        this->m_current = toDel->next;
+                    }
+                }
+                LinkList<T>::destroy(toDel);
+            }
+            else
+                LinkList<T>::remove(mod(i));
+
+            return ret;
+        }
+
+        // O(n)
+        int find(const T& e) const
+        {
+            int ret = -1;
+            int i = 0;
+            Node * node = this->m_header.next;
+
+            for(int i = 0; i < this->m_length; i++)
+            {
+                if(node->value == e)
+                {
+                    ret = i;
+                    break;
+                }
+                else
+                {
+                    node = node->next;
+                    i++;
+                }
+            }
+
+            return ret;
         }
 
         // O(n)
@@ -106,65 +110,48 @@ namespace DataStructure
             return LinkList<T>::get(mod(i));
         }
         // O(n)
-        bool get(int i, const T& e) const
+        bool get(int i, T& e) const
         {
             return LinkList<T>::get(mod(i), e);
         }
 
         // O(n)
-        int find(const T& e) const
+        bool set(int i, const T& e)
         {
-            int ret = -1;
-
-            Node * slider = this->m_head.next;
-            for(int i = 0; i < this->m_length; i++)
-            {
-                if(slider->data == e)
-                {
-                    ret = i;
-                    break;
-                }
-                slider = slider->next;
-            }
-            return ret;
-        }
-
-        // O(n)
-        void clear(void)
-        {
-            //删除1位置和删除单链表一样，但是如果删除0每次都需要大量遍历
-            // O(n)
-            while (this->m_length > 1)
-            {
-                remove(1); // O(1)
-            }
-            //最后处理特殊位置
-            if(this->m_length == 1)
-            {
-                Node * toDel = this->m_head.next;
-                this->m_head.next = NULL;
-                this->m_length = 0;
-                this->m_current = NULL;
-                LinkList<T>::destroy(toDel);
-            }
-        }
-
-        // O(n)
-        ~CircleList()
-        {
-            clear();
-        }
-
-        // O(n)
-        bool move(int i, int step = 1)
-        {
-            return LinkList<T>::move(mod(i), step);
+            return LinkList<T>::set(mod(i), e);
         }
 
         // O(1)
-        bool end()
+        int length(void) const
         {
-            return (this->m_length == 0)||(this->m_current == NULL);
+            return LinkList<T>::length();
+        }
+    
+        // O(n)
+        void clear(void)
+        {
+            while(this->m_length > 1)
+            {
+                // O(1)
+                remove(1);
+            }
+            if(this->m_length == 1)
+                remove(0);
+        }
+
+        virtual bool move(int start, int step)
+        {
+            return LinkList<T>::move(mod(start), step);
+        }
+
+        virtual bool end(void)
+        {
+            return ((this->m_current == NULL) || (this->m_length == 0));
+        }
+
+        ~CircleList()
+        {
+            clear();
         }
     };
 }

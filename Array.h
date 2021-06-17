@@ -1,44 +1,72 @@
 #pragma once
 
-#include <exception>
+#include "Object.h"
+#include "Exception.h"
 
-namespace DataStructure
+namespace data_structure
 {
-    template <typename T> 
-    class Array
+    template <typename T>
+    class Array:public Object
     {
-    protected:
-        T * m_array;
-    public:
-        virtual int length() const = 0;
-        virtual bool set(int i, const T& e)
+        protected:
+        T* m_array;
+        
+        public:
+        virtual bool set(int position, const T& e)
         {
-            if((i >= 0) && (i < length()))
+            if((position >= 0) && (position < length()))
             {
-                m_array[i] = e;
-                return true;
+                m_array[position] = e;
             }
-            return false;
-        }
-        virtual bool get(int i, T& e) const
-        {
-            if((i >= 0) && (i < length()))
-            {
-                e = m_array[i];
-                return true;
-            }
-            return false;
-        }
-        T& operator[] (int i)
-        {
-            if((i >= 0) && (i < length()))
-                return m_array[i];
             else
-                throw std::out_of_range("Parameter is invalid");
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "set failed!");
+            }
+            return true;
         }
-        T operator[] (int i) const
+        
+        virtual bool get(int position, T& e)
         {
-            return (const_cast<Array<T>&>(*this))[i];
+            if((position >= 0) && (position < length()))
+            {
+                e = m_array[position];
+            }
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "get failed!");
+            }
+            return true;
+        }
+
+        virtual int length(void) const = 0;
+
+        T& operator[](int position)
+        {
+            if((position >= 0) && (position < length()))
+            {
+                return m_array[position];
+            }
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "[] failed!");
+            }
+        }
+
+        T operator[](int position) const
+        {
+            if((position >= 0) && (position < length()))
+            {
+                return const_cast<Array<T>&>(*this)[position];
+            }
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "[] failed!");
+            }
+        }
+
+        T* array() const
+        {
+            return m_array;
         }
     };
 }

@@ -1,25 +1,30 @@
 #pragma once
 
 #include "SeqList.h"
+#include "Exception.h"
 
-namespace DataStructure
+namespace data_structure
 {
     template <typename T, int N>
-    class StaticList:public SeqList<T>
+    class StaticList:public Seqlist<T>
     {
-        protected:
-            T m_space[N];
-        public:
+    protected:
+        T m_space[N];
 
-            StaticList()
-            {
-                this->m_array = m_space;
-                this->m_length = 0;
-            }
+    public:
 
-            int capacity(void)const
-            {
-                return N;
-            }
+        // O(1)
+        StaticList()
+        {
+            this->m_array = m_space;
+            this->m_length = 0;
+        }
+
+        // O(1)
+        int capacity(void)const
+        {
+            return N;
+        }
+
     };
 }

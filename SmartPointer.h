@@ -1,40 +1,61 @@
 #pragma once
 
+#include "Object.h"
 #include <iostream>
-#include "Pointer.h"
 
-namespace DataStructure
+namespace data_structure
 {
     template <typename T>
-    class SmartPointer:public Pointer<T>
+    class SmartPointer:public Object
     {
-        public:
-
-        SmartPointer(T * p = NULL):Pointer<T>(p)
+    protected:
+        T * m_pointer;
+    public:
+        SmartPointer(T* p = NULL)
         {
+            m_pointer = p;
         }
-        
+
         SmartPointer(const SmartPointer<T>& obj)
         {
-            this->m_pointer = obj.m_pointer;
-            const_cast<SmartPointer<T>&>(obj.m_pointer) = NULL;
+            m_pointer = obj.m_pointer;
+            const_cast<SmartPointer<T>&>(obj).m_pointer = NULL;
         }
 
-        SmartPointer<T>& operator= (const SmartPointer<T>& obj)
+        SmartPointer<T>& operator = (const SmartPointer<T>& obj)
         {
-            if(&obj != this)
+            if(obj != m_pointer)
             {
-                T * p = this->m_pointer;
-                this->m_pointer = obj.m_pointer;
-                const_cast<SmartPointer<T>&>(obj.m_pointer) = NULL;
-                delete p;
+                delete m_pointer;
+                m_pointer = obj.m_pointer;
+                const_cast<SmartPointer<T>&>(obj).m_pointer = NULL;
             }
             return *this;
         }
 
+        T * operator ->()
+        {
+            return m_pointer;
+        }
+
+        T& operator * ()
+        {
+            return *m_pointer;
+        }
+
+        bool isNull()
+        {
+            return (m_pointer == NULL);
+        }
+
+        T* get()
+        {
+            return m_pointer;
+        }
+
         ~SmartPointer()
         {
-            delete this->m_pointer;
+            delete m_pointer;
         }
     };
 }

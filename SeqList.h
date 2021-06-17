@@ -1,113 +1,142 @@
 #pragma once
 
 #include "List.h"
+#include "Exception.h"
 
-namespace DataStructure
+namespace data_structure
 {
     template <typename T>
-    class SeqList:public List<T>
+    class Seqlist:public List<T>
     {
     protected:
-        T * m_array;
         int m_length;
-
+        T* m_array;
     public:
-
-        // O(n)
-        bool insert(int i, const T &e)
+        
+        // O(1)
+        T& operator[] (int position)
         {
-            bool ret = ((i >= 0) && (i <= m_length) && (m_length < capacity()));
-            
-            if(ret)
+            if((position >= 0) && (position < m_length))
             {
-                for(int p = m_length -1; p >= i; p--)
-                {
-                    m_array[p + 1] = m_array[p];
-                }
-                m_array[i] = e;
-                ++ m_length;
+                return m_array[position];
             }
-            return ret;
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "[] failed!")
+            }
         }
 
-        bool insert(const T &e)
+        // O(1)
+        T operator[] (int position) const
+        {
+            return const_cast<Seqlist<T>&>(*this)[position];
+        }
+
+        // O(1)
+        bool insert(const T& e)
         {
             return insert(m_length, e);
         }
+        
+        // O(n)
+        bool insert(int position, const T& e)
+        {
+            // 1
+            if((position >= 0) && (position <= m_length) && (m_length < capacity()))
+            {
+                // 2
+                for(int i = position; i < m_length; i++)
+                {
+                    m_array[i + 1] = m_array[i];
+                }
+                // 3
+                m_array[position] = e;
+                // 4
+                m_length++;
+            }
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "insert failed!")
+            }
+            return true;
+        }
 
         // O(n)
-        bool remove(int i)
+        bool remove(int position)
         {
-            bool ret = ((i >= 0) && (i < m_length));
-
-            if(ret)
+            // 1
+            if((position >= 0) && (position < m_length))
             {
-                for(int p = i; p < m_length - 1; p++)
+                // 2
+                for(int i = position + 1; i < m_length; i++)
                 {
-                    m_array[p] = m_array[p + 1];
+                    m_array[i] = m_array[i + 1];
                 }
-                --m_length;
+                // 3
+                m_length--;
             }
-            return ret;
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "remove failed!")
+            }
+            return true;
         }
 
-        //O(1)
-        bool set(int i, const T &e)
+        // O(n)
+        int find(const T& e) const
         {
-            bool ret = ((i >= 0) && (i < m_length));
-            if(ret)
-                m_array[i] = e;
-            return ret;
+            for(int i = 0; i < m_length; i++)
+            {
+                if(m_array[i] == e)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
         }
+
         // O(1)
-        bool get(int i, T &e)const
+        bool get(int position, T& e) const
         {
-            bool ret = ((i >= 0) && (i < m_length));
-            if(ret)
-                e = m_array[i];
-            return ret;
+            if((position >= 0) && (position < m_length))
+            {
+                e = m_array[position];
+            }
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "get failed!")
+            }
+            return true;
         }
+
         // O(1)
-        int  length(void) const
+        bool set(int position, const T& e)
+        {
+            if((position >= 0) && (position < m_length))
+            {
+                m_array[position] = e;
+            }
+            else
+            {
+                THROW_EXCEPTION(IndexOutofBoundsException, "set failed!")
+            }
+            return true;
+        }
+
+        // O(1)
+        int length(void) const
         {
             return m_length;
         }
+
         // O(1)
         void clear(void)
         {
             m_length = 0;
         }
 
-        // 顺序存储结构线性表的数组访问
-        T& operator[] (int i)
-        {
-            if(((i >= 0) && (i < m_length)))
-            {
-                return m_array[i];
-            }
-            else
-            {
-                throw std::range_error("Parameter i is invalid");
-            }
-        }
-
-        T operator[] (int i) const
-        {
-            return (const_cast<SeqList<T> &>(*this))[i];
-        }
-
-        int find(const T& e)const
-        {
-            int ret = -1;
-            for (int i = 0; i < m_length; i++)
-            {
-                if(m_array[i] == e)
-                    ret = i;
-            }
-            return ret;
-        }
-
-        // 顺序存储空间的容量
         virtual  int capacity(void)const = 0;
     };
+    
 }

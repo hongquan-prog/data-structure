@@ -2,7 +2,7 @@
 
 #include "Array.h"
 
-namespace DataStructure
+namespace data_structure
 {
     template <typename T, int N>
     class StaticArray:public Array<T>
@@ -10,27 +10,38 @@ namespace DataStructure
     protected:
         T m_space[N];
     public:
+
+        // O(1)
         StaticArray()
         {
             this->m_array = m_space;
         }
-        StaticArray(const StaticArray<T,N> & obj)
+
+        // O(n)
+        StaticArray(const StaticArray& obj)
         {
             this->m_array = m_space;
-            for(int i = 0; i < N; i++)
-                m_space[i] = obj[i];
-        }
-        StaticArray<T,N> & operator= (const StaticArray<T,N> & obj)
-        {
-            if(this != obj)
+            for(int i  = 0; i < N; i++)
             {
-                for(int i = 0; i < N; i++)
                 m_space[i] = obj[i];
+            }
+        }
+
+        // O(n)
+        StaticArray& operator=(const StaticArray& obj)
+        {
+            if(this != & obj)
+            {
+                for(int i  = 0; i < N; i++)
+                {
+                    m_space[i] = obj[i];
+                }
             }
             return *this;
         }
 
-        int length() const
+        // O(1)
+        int length(void) const
         {
             return N;
         }

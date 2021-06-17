@@ -1,14 +1,14 @@
-#pragma once
+#pragma once 
 
-#include "LinkList.h"
+#include "DualLinkList.h"
 
 namespace data_structure
 {
     template <typename T, int N>
-    class StaticLinkList:public LinkList<T>
+    class DualStaticLinkList:public DualLinkList<T>
     {
     protected:
-        typedef typename LinkList<T>::Node Node;
+        typedef typename DualLinkList<T>::Node Node;
 
         struct SNode:public Node
         {
@@ -18,26 +18,25 @@ namespace data_structure
                 return loc;
             }
         };
+        
 
         unsigned char m_array[sizeof(Node) * N];
         bool m_used[N];
     public:
-        StaticLinkList()
+        DualStaticLinkList()
         {
             for(int i = 0; i < N; i++)
-            {
                 m_used[i] = false;
-            }
         }
 
         Node * create(void)
         {
             Node * ret = NULL;
-            for(int i = 0; i < N; i++)
+            for (int i = 0; i < N; i++)
             {
                 if(m_used[i] == false)
                 {
-                    ret = reinterpret_cast<Node*>(m_array) + i;
+                    ret = reinterpret_cast<Node *>(m_array) + i;
                     ret = new (ret)SNode();
                     m_used[i] = true;
                     break;
@@ -48,21 +47,20 @@ namespace data_structure
 
         void destroy(Node * pn)
         {
-            Node * array = reinterpret_cast<Node*>(m_array);
-
-            for(int i = 0; i < N; i++)
+            Node * current = reinterpret_cast<Node *>(m_array);
+            for (int i = 0; i < N; i++)
             {
-                if(array == pn)
+                if(current == pn)
                 {
                     m_used[i] = false;
                     break;
                 }
                 else
-                    array++;
+                    current++;
             }
         }
 
-        ~StaticLinkList()
+        ~DualStaticLinkList()
         {
             this->clear();
         }

@@ -1,90 +1,43 @@
-#include "StaticLinkList.h"
-#include "CircleList.h"
-#include "SmartPointer.h"
-#include "SharedPointer.h"
-#include "DualLinkList.h"
+#include <iostream>
+#include "Exception.h"
+#include "StaticArray.h"
+#include "DynamicArray.h"
 #include "StaticStack.h"
 #include "LinkStack.h"
 #include "StaticQueue.h"
+#include "DualCircleLinkList.h"
 #include "LinkQueue.h"
-#include <iostream>
+#include "StackToQueue.h"
+#include "QueueToStack.h"
+#include "DTString.h"
+#include "Sort.h"
+#include <unistd.h>
+
+using namespace std;
+using namespace data_structure;
 
 
-bool is_left(char c)
+int main(void)
 {
-    return (c == '(') || (c == '{') || (c == '[') || (c == '<');
-}
+    DynamicArray<int> array(10);
 
-bool is_right(char c)
-{
-    return (c == ')') || (c == '}') || (c == ']') || (c == '>');
-}
+    array.set(0, 500);
+    array.set(1, 600);
+    array.set(2, 200);
+    array.set(3, 700);
+    array.set(4, 800);
+    array.set(5, 100);
+    array.set(6, 900);
+    array.set(7, 400);
+    array.set(8, 000);
+    array.set(9, 300);
 
-bool is_quot(char c)
-{
-    return (c == '\'') || (c == '\"');
-}
+    Sort::Quick(array);
 
-bool is_match(char l, char r)
-{
-    return  ((l == '(') && (r == ')')) ||
-            ((l == '{') && (r == '}')) ||
-            ((l == '[') && (r == ']')) ||
-            ((l == '<') && (r == '>')) ||
-            ((l == '\'') && (r == '\'')) ||
-            ((l == '\"') && (r == '\"'));
-}
-
-bool scan(const char * code)
-{
-    DataStructure::LinkStack<char> stack;
-    int i = 0;
-    bool ret = true;
-
-    code = (code == NULL) ? ("") : (code);
-    while(ret && (code[i] != '\0'))
+    for(int i = 0; i < array.length(); i++)
     {
-        if(is_left(code[i]))
-        {
-            stack.push(code[i]);
-        }
-        else if(is_right(code[i]))
-        {
-            if((stack.size() > 0) && is_match(stack.top(), code[i]))
-            {
-                stack.pop();
-            }
-            else
-                ret = false;
-        }
-        else if(is_quot(code[i]))
-        {
-            if((stack.size() == 0) || !is_match(stack.top(), code[i]))
-            {
-                stack.push(code[i]);
-            }
-            else if(is_match(stack.top(), code[i]))
-            {
-                stack.pop();
-            }
-        }
-        i++;
-    }
-
-    return ret && (stack.size() == 0);
-}
-int main()
-{
-    DataStructure::LinkQueue<int, 10> queue;
-
-    for(int i = 0; i < 10; i++)
-    {
-        queue.add(i);
-    }
-
-    for(int i = 0; i < 10; i++)
-    {
-        std::cout << queue.front() << std::endl;
-        queue.remove();
+        int ret = 0;
+        array.get(i, ret);
+        cout << ret << endl;
     }
 }

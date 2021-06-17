@@ -5,7 +5,7 @@ SRC_DIR := .
 INC_DIR := .
 DEP_DIR := $(BUILD_DIR)
 
-TARGET := LinkList
+TARGET := obj
 TARGET := $(addprefix $(BUILD_DIR)/, $(TARGET))
 
 SRC_TYPE := .cpp

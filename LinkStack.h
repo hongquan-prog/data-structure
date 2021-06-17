@@ -2,17 +2,16 @@
 
 #include "Stack.h"
 #include "LinkList.h"
-#include "iostream"
 
-namespace DataStructure
+namespace data_structure
 {
     template <typename T>
-    class LinkStack
+    class LinkStack:public Stack<T>
     {
     protected:
         LinkList<T> m_list;
-
     public:
+
         // O(1)
         void push(const T& e)
         {
@@ -20,23 +19,29 @@ namespace DataStructure
         }
 
         // O(1)
-        void pop(void)
+        void pop()
         {
-            if(m_list.length() > 0)
+            if(m_list.length())
             {
                 m_list.remove(0);
             }
             else
-                throw std::range_error("Stack is enpty!");
+            {
+                THROW_EXCEPTION(InvalidOperationException, "No element in current stack ...");
+            }
         }
 
         // O(1)
         T top() const
         {
-            if(m_list.length() > 0)
+            if(m_list.length())
+            {
                 return m_list.get(0);
+            }
             else
-                throw std::range_error("Stack is enpty!");
+            {
+                THROW_EXCEPTION(InvalidOperationException, "No element in current stack ...");
+            }
         }
 
         // O(n)
@@ -51,10 +56,9 @@ namespace DataStructure
             return m_list.length();
         }
 
-        // O(n)
         ~LinkStack()
         {
             clear();
         }
     };
-}
+};
