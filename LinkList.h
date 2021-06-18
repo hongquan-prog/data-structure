@@ -152,7 +152,6 @@ namespace data_structure
             {
                 THROW_EXCEPTION(IndexOutofBoundsException, "get failed!");
             }
-            return true;
         }
 
         // O(n)
@@ -186,7 +185,7 @@ namespace data_structure
             }
         }
 
-        virtual bool move(int start, int step)
+        virtual bool move(int start, int step = 1)
         {
             bool ret = true;
             if((start >= 0) && (start < m_length))
