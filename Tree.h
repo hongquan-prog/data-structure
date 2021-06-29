@@ -7,15 +7,18 @@ namespace data_structure
     template <typename T>
     class Tree:public Object
     {
-        protected:
+    protected:
         TreeNode<T> * m_root;
 
-        public:
+        Tree(const Tree<T>&);
+        const Tree<T>& operator= (const Tree<T>&);
+
+    public:
         Tree()
         {
             m_root = NULL;
         }
-        
+
         virtual bool insert(TreeNode<T>* node) = 0;
         virtual bool insert(const T& value, TreeNode<T>* parent) = 0;
         virtual SharedPointer< Tree<T> > remove(const T& value) = 0;
@@ -27,5 +30,9 @@ namespace data_structure
         virtual int count() const = 0;
         virtual int height() const = 0;
         virtual void clear() = 0;
+        virtual bool begin() = 0;
+        virtual bool end() = 0;
+        virtual bool next() = 0;
+        virtual T current() = 0;
     };
 }

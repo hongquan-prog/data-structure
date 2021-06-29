@@ -20,7 +20,7 @@ namespace data_structure
                 return m_pointer;
             }
 
-            T* operator *()
+            T& operator *()
             {
                 return *m_pointer;
             }

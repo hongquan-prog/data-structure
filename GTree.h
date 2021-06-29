@@ -2,7 +2,9 @@
 
 #include "Tree.h"
 #include "Exception.h"
+#include "LinkQueue.h"
 #include "GTreeNode.h"
+#include "SharedPointer.h"
 
 namespace data_structure
 {
@@ -10,6 +12,8 @@ namespace data_structure
     class GTree:public Tree<T>
     {
     protected:
+        LinkQueue<GTreeNode<T>*> m_queue; 
+
         GTreeNode<T>* find(GTreeNode<T>* node, const T& value) const
         {
             GTreeNode<T>* ret = NULL;
@@ -44,6 +48,98 @@ namespace data_structure
                     for(node->m_child.move(0); !node->m_child.end() && (ret == NULL); node->m_child.next())
                     {
                         ret = find(node->m_child.current(), obj);
+                    }
+                }
+            }
+            return ret;
+        }
+
+        void free(GTreeNode<T>* node)
+        {
+            if(node == NULL)
+            {
+                return;
+            }
+            else
+            {
+                for(node->m_child.move(0); !node->m_child.end(); node->m_child.next())
+                {
+                    free(node->m_child.current());
+                }
+                if(node->flag())
+                {
+                    delete node;
+                }
+            }
+        }
+
+        void remove(GTreeNode<T>* node, GTree<T>*& ret)
+        {
+            ret = new GTree<T>();
+            if(ret)
+            {
+                if(root() == node)
+                {
+                    this->m_root = NULL;
+                }
+                else
+                {
+                    LinkList<GTreeNode<T>*>& child = dynamic_cast<GTreeNode<T>*>(node->parent)->m_child;
+                    child.remove(child.find(node));
+                    node->parent = NULL;
+                }
+                ret->m_root = node;
+            }
+            else
+            {
+                THROW_EXCEPTION(NoEnoughMemoryException, "No memory to create new tree");
+            }
+        }
+
+        int count(GTreeNode<T>* node) const
+        {
+            int ret = 0;
+            if(node)
+            {
+                ret  = 1;
+                for(node->m_child.move(0); !(node->m_child.end()); node->m_child.next())
+                {
+                    ret += count(node->m_child.current());
+                }
+            }
+            return ret;
+        }
+
+        int height(GTreeNode<T>* node) const
+        {
+            int ret = 0;
+            if(node)
+            {
+                for(node->m_child.move(0); !(node->m_child.end()); node->m_child.next())
+                {
+                   int h = height(node->m_child.current());
+                   if(h > ret)
+                   {
+                       ret = h;
+                   }
+                }
+                ret = ret + 1;
+            }
+            return ret;
+        }
+
+        int degree(GTreeNode<T>* node) const
+        {
+            int ret = 0;
+            if(node)
+            {
+                ret = node->m_child.length();
+                for(node->m_child.move(0); !(node->m_child.end()); node->m_child.next())
+                {
+                    int d = degree(node->m_child.current());
+                    if(d > ret)
+                    {
+                        ret = d;
                     }
                 }
             }
@@ -94,7 +190,7 @@ namespace data_structure
         {
             bool ret = true;
 
-            GTreeNode<T>* node = new GTreeNode<T>();
+            GTreeNode<T>* node = GTreeNode<T>::NewNode();
             if(node)
             {
                 node->parent = parent;
@@ -103,21 +199,44 @@ namespace data_structure
             }
             else
             {
-                THROW_EXCEPTION(NoEnoughMemoryException, "No memory to create new tree node");
+                THROW_EXCEPTION(NoEnoughMemoryException, "No memory to create new tree node ...");
             }
-            
-
+        
             return ret;
         }
 
         SharedPointer< Tree<T> > remove(const T& value)
         {
-            return NULL;
+            GTree<T>* ret = NULL;
+            GTreeNode<T>* node = find(value);
+
+            if(node == NULL)
+            {
+                THROW_EXCEPTION(InvalidParameterException, "Can not find the node via parameter value ...");
+            }
+            else
+            {
+                remove(node, ret);
+                m_queue.clear();
+            }
+            return ret;
         }
 
         SharedPointer< Tree<T> > remove(TreeNode<T>* node)
         {
-            return NULL;
+            GTree<T>* ret = NULL;
+            node = find(node);
+
+            if(node == NULL)
+            {
+                THROW_EXCEPTION(InvalidParameterException, "Parameter is invalid ...");
+            }
+            else
+            {
+                remove(dynamic_cast<GTreeNode<T>*>(node), ret);
+                m_queue.clear();
+            }
+            return ret;
         }
 
         GTreeNode<T>* find(const T& value)const
@@ -137,19 +256,65 @@ namespace data_structure
 
         int degree() const
         {
-            return 0;
+            return degree(root());
         }
         int count() const
         {
-            return 0;
+            return count(root());
         }
         int height() const
         {
-            return 0;
+            return height(root());
         }
         void clear()
         {
-
+            free(root());
+            this->m_root = NULL;
+            m_queue.clear();
         }
+
+        bool begin()
+        {
+            bool ret = (root() != NULL);
+            if(ret)
+            {
+                m_queue.clear();
+                m_queue.add(root());
+            }
+            return ret;
+        }
+
+        bool end()
+        {
+            return (m_queue.length() == 0);
+        }
+        
+        bool next()
+        {
+            bool ret = (m_queue.length() != 0);
+            if(ret)
+            {
+                GTreeNode<T>* node = m_queue.front();
+                m_queue.remove();
+                for(node->m_child.move(0); !(node->m_child.end()); node->m_child.next())
+                {
+                    m_queue.add(node->m_child.current());
+                }
+            }
+            return ret;
+        }
+
+        T current()
+        {
+            if(!end())
+            {
+                return m_queue.front()->value;
+            }
+            else
+            {
+                THROW_EXCEPTION(InvalidOperationException, "No value at current position ...");
+            }
+        }
+
     };
 }
