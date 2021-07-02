@@ -1,52 +1,50 @@
-.PHONY:all clean
-
-BUILD_DIR := build
-SRC_DIR := .
-INC_DIR := .
-DEP_DIR := $(BUILD_DIR)
-
-TARGET := obj
-TARGET := $(addprefix $(BUILD_DIR)/, $(TARGET))
-
-SRC_TYPE := .cpp
-INC_TYPE := .h
-OBJ_TYPE := .o
-DEP_TYPE := .dep
-
-SRCS := $(wildcard $(SRC_DIR)/*$(SRC_TYPE))
-OBJS := $(SRCS:$(SRC_TYPE)=$(OBJ_TYPE))
-OBJS := $(notdir $(OBJS))
-OBJS := $(addprefix $(BUILD_DIR)/, $(OBJS))
-DEPS := $(OBJS:$(OBJ_TYPE)=$(DEP_TYPE))
+.PHONY:all clean rebuild
 
 CC := g++
-MKDIR := mkdir -p
+MKDIR := mkdir 
 RM := rm -fr
 
-vpath $(SRC_TYPE) $(SRC_DIR)
-vpath $(INC_TYPE) $(INC_DIR)
+DIR_BUILD := build
+DIR_INC := ./
+DIR_OBJS := $(DIR_BUILD)/objs
+DIR_DEPS := $(DIR_BUILD)/deps
+DIR_TARGET := $(DIR_BUILD)/target
+DIRS := $(DIR_OBJS) $(DIR_TARGET) $(DIR_DEPS)
 
-all: $(TARGET)
+TYPE_SRC := .cpp
+TYPE_OBJ := .o
+TYPE_DEP := .dep
 
-$(TARGET):$(OBJS)
-	$(CC) -I $(INC_DIR) -o $@ $^
+TARGET := $(DIR_TARGET)/exe.out
+MAKEFILE := Makefile
 
-$(BUILD_DIR)/%$(OBJ_TYPE):%$(SRC_TYPE)
-	$(CC) -I $(INC_DIR) -o $@ -c $(filter %$(SRC_TYPE), $^)
+SRCS := $(wildcard *$(TYPE_SRC))
+OBJS := $(SRCS:%$(TYPE_SRC)=%$(TYPE_OBJ))
+OBJS := $(addprefix $(DIR_OBJS)/,$(OBJS))
+DEPS := $(SRCS:%$(TYPE_SRC)=%$(TYPE_DEP))
+DEPS := $(addprefix $(DIR_DEPS)/,$(DEPS))
 
-$(BUILD_DIR):
-	$(MKDIR) $@
-	
+$(TARGET): $(DIRS) $(OBJS) 
+	$(CC) -o $@ $(OBJS)
+
 include $(DEPS)
-ifeq ("$(wildcard $(BUILD_DIR))","")
-$(BUILD_DIR)/%$(DEP_TYPE):$(BUILD_DIR) %$(SRC_TYPE)
+ifeq ("$(wildcard $(DIRS))","")
+$(DIR_DEPS)/%$(TYPE_DEP):$(DIRS) %$(TYPE_SRC) $(MAKEFILE)
 else
-$(BUILD_DIR)/%$(DEP_TYPE):%$(SRC_TYPE)
+$(DIR_DEPS)/%$(TYPE_DEP):%$(TYPE_SRC) $(MAKEFILE)
 endif
-	$(CC) -I $(INC_DIR) -MM -E $(filter %$(SRC_TYPE), $^) | sed 's,\(.*\)\.o[ :]*,$(BUILD_DIR)/\1.o $@ :,g' > $@
+	$(CC) -I $(DIR_INC) -MM -E $(filter %$(TYPE_SRC), $^) | sed 's,\(.*\)\.o[ :]*,$(DIR_DEPS)/\1.o $@:,g' > $@
+
+$(DIR_OBJS)/%$(TYPE_OBJ):%$(TYPE_SRC)
+	$(CC) -o $@ -c $(filter %$(TYPE_SRC), $^)
+
+$(DIRS):
+	$(MKDIR) -p $@
+
+rebuild: clean $(TARGET)
 
 clean:
-	$(RM) $(BUILD_DIR)
+	$(RM) $(DIR_BUILD)
 
 
 
