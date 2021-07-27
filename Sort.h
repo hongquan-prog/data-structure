@@ -21,7 +21,7 @@ namespace data_structure
         }
 
         template <typename T>
-        static void Merge(T src[], T helper[], int begin, int mid, int end, bool min2max = true)
+        static void Merge(T src[], T helper[], int begin, int mid, int end, bool min2max)
         {
             int i = begin;
             int j = mid + 1;
@@ -48,7 +48,7 @@ namespace data_structure
         }
 
         template <typename T>
-        static void Merge(T src[], T helper[], int begin, int end, bool min2max = true)
+        static void Merge(T src[], T helper[], int begin, int end, bool min2max)
         {
             if(begin < end)
             {
@@ -60,7 +60,7 @@ namespace data_structure
         }
 
         template <typename T>
-        static int Partition(T array[], int begin, int end, bool min2max = true)
+        static int Partition(T array[], int begin, int end, bool min2max)
         {
             T temp = array[begin]; 
             while (begin < end)
@@ -70,20 +70,20 @@ namespace data_structure
                 {
                     end--;
                 }
-                Swap(array[begin], array[end]);
+                array[begin] = array[end];
 
                 while((begin < end) && (min2max ? (array[begin] <= temp) : (array[begin] >= temp)))
                 {
                     begin++;
                 }
-                Swap(array[begin], array[end]);
+                array[end] = array[begin];
             }
             array[begin] = temp;
             return begin;
         }
 
         template <typename T>
-        static void Quick(T array[], int begin, int end, bool min2max = true)
+        static void Quick(T array[], int begin, int end, bool min2max)
         {
             if(begin < end)
             {
@@ -92,10 +92,35 @@ namespace data_structure
                 Quick(array, ret + 1, end, min2max);
             }
         }
+
+        template <typename T>
+        static void AdjustHeap(T array[], int begin, int end, bool min2max)
+        {
+            int parent = begin;
+            int child = parent * 2 + 1;
+
+            while (child <= end)
+            {
+                if ((child + 1 <= end) && (min2max) ? (array[child] < array[child + 1]) : ((array[child] > array[child + 1])))
+                {
+                    child++;
+                }
+                if ((min2max) ? (array[parent] > array[child]) : (array[parent] < array[child]))
+                {
+                    return;
+                }
+                else
+                {
+                    Swap(array[parent], array[child]);
+                    parent = child;
+                    child = parent * 2 + 1;
+                }
+            }
+        }
     public:
         // O(n^2)
         template <typename T>
-        static void Select(T array[], int len, bool min2max = true)
+        static void Select(T array[], const int len, bool min2max = true)
         {
             for(int i = 0; i < len; i++)
             {
@@ -112,7 +137,7 @@ namespace data_structure
 
         // O(n^2)
         template <typename T>
-        static void Insert(T array[], int len, bool min2max = true)
+        static void Insert(T array[], const int len, bool min2max = true)
         {
             for(int i = 1; i < len; i++)
             {
@@ -129,7 +154,7 @@ namespace data_structure
         }
 
         template <typename T>
-        static void Bubble(T array[], int len, bool min2max = true)
+        static void Bubble(T array[], const int len, bool min2max = true)
         {
             bool exchange = true;
 
@@ -148,7 +173,7 @@ namespace data_structure
         }
 
         template <typename T>
-        static void Shell(T array[], int len, bool min2max = true)
+        static void Shell(T array[], const int len, bool min2max = true)
         {
             int d = len;
             do
@@ -171,12 +196,85 @@ namespace data_structure
         }
 
         template <typename T>
-        static void Merge(T array[], int len, bool min2max = true)
+        static void Merge(T array[], const int len, bool min2max = true)
         {
             T * helper = new T[len];
             if(helper)
                 Merge(array, helper, 0, len - 1, min2max);
             delete [] helper;
+        }
+
+        template<typename T>
+        static void Radix(T array[], const int len, bool min2max = true)
+        {
+            // 找出最大值
+            int max = array[0];
+            for(int i = 1; i < len; i++)
+            {
+                if(array[i] > max)
+                {
+                    max = array[i];
+                }
+            }
+
+            // 申请内存
+            T count[10] = {0};
+            T* temp[10];
+            for (int i = 0; i < 10; i++)
+            {
+                temp[i] = new T[len];
+                if(temp[i] == NULL)
+                {
+                    for (int j = i; j >= 0; j--)
+                    {
+                        delete temp[j];
+                    }
+                    THROW_EXCEPTION(NoEnoughMemoryException, "No memory to create array!");
+                }
+            }
+            
+            for(int n = 1; n <= max; n *= 10)
+            {
+                for(int  i = 0; i < 10; i++)
+                {
+                    count[i] = 0;
+                }
+
+                for(int i = 0; i < len; i++)
+                {
+                    int ret = (array[i] / n) % 10;
+                    temp[ret][count[ret]] = array[i];
+                    count[ret]++;
+                }
+
+                int index = 0;
+                for(int i = (min2max) ? (0) : (9); (min2max) ? (i < 10) : (i >= 0); (min2max) ? (i++) : (i--))
+                {
+                    for(int j = 0; j < count[i]; j++)
+                    {
+                        array[index++] = temp[i][j];
+                    }
+                }
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                delete temp[i];
+            }
+        }
+
+        template<typename T>
+        static void Heap(T array[], const int len, bool min2max = true)
+        {
+            for(int i = len / 2 - 1; i >= 0; i--)
+            {
+                AdjustHeap(array, i, len - 1, min2max);
+            }
+            for(int i = len - 1; i > 0; i--)
+            {
+                Swap(array[0], array[i]);
+                AdjustHeap(array, 0, i - 1, min2max);
+            }
         }
 
         template <typename T>
@@ -219,6 +317,18 @@ namespace data_structure
         static void Quick(Array<T>& array, bool min2max = true)
         {
             Quick(array.array(), array.length(), min2max);
+        }
+
+        template <typename T>
+        static void Radix(Array<T>& array, bool min2max = true)
+        {
+            Radix(array.array(), array.length(), min2max);
+        }
+
+        template <typename T>
+        static void Heap(Array<T>& array, bool min2max = true)
+        {
+            Heap(array.array(), array.length(), min2max);
         }
     };
 }

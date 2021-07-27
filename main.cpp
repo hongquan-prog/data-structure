@@ -19,6 +19,7 @@
 #include "QueueToStack.h"
 #include "DTString.h"
 #include "Sort.h"
+#include "Search.h"
 #include "GTree.h"
 #include "BTree.h"
 #include "MatrixGraph.h"
@@ -31,33 +32,18 @@ using namespace data_structure;
 
 int main(void)
 {
-    
+    int array[12] = {59, 95, 7, 34, 60, 168, 171, 259, 372, 45, 88, 133};
 
     try
     {
-        ListGraph<int, int> g(4);
-        g.setEdge(0, 1, 1);
-        g.setEdge(0, 2, 3);
-        g.setEdge(1, 2, 1);
-        g.setEdge(1, 3, 4);
-        g.setEdge(2, 3, 1);
-
-        // ListGraph<int, int> g(5);
-        // g.setEdge(0, 1, 10);
-        // g.setEdge(0, 4, 100);
-        // g.setEdge(0, 3, 30);
-        // g.setEdge(1, 2, 50);
-        // g.setEdge(2, 4, 10);
-        // g.setEdge(3, 2, 20);
-        // g.setEdge(3, 4, 60);
-
-        SharedPointer< Array<int> > r = g.dijkstra(0, 3, 65535);
-        int weigh = 0;
-        for(int i = 0; i < r->length(); i++)
+        bool min2_max = 1;
+        Sort::Heap(array, 12, min2_max);
+        // cout << Search::Binsearch(array, 10, 11, min2_max) << endl;
+        for(int i = 0; i < 12; i++)
         {
-            cout << (*r)[i] << " ";
+            cout<< array[i] << " ";
         }
-        cout << endl;
+        cout<< endl;
     }
     catch(const Exception& exception)
     {
