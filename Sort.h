@@ -141,15 +141,17 @@ namespace data_structure
         {
             for(int i = 1; i < len; i++)
             {
-                int index = 0;
+                int index = i;
                 T temp = array[i];
                 for(int j = i - 1; (j >= 0) && (min2max ? (array[j] > temp) : (array[j] < temp)); j--)
                 {
-                    array[j + 1] = array[j];
-                    index = j;
+                        array[j + 1] = array[j];
+                        index = j;
                 }
                 if(index != i)
+                {
                     array[index] = temp;
+                }
             }
         }
 
@@ -179,26 +181,28 @@ namespace data_structure
             do
             {
                 d = d / 3 + 1;
-
                 for(int i = d; i < len; i++)
                 {
                     int index = i;
                     T temp = array[i];
-                    for(int j = i - d; (j >= 0) && (min2max ? (array[j] > temp) : (array[j] < temp)) ; j = j - d)
+                    for(int j = i - d; (j >= 0) && (min2max ? (array[j] > temp) : (array[j] < temp)); j = j - d)
                     {
                         array[j + d] = array[j];
-                        index = j; 
+                        index = j;
                     }
                     if(index != i)
+                    {
                         array[index] = temp;
+                    }
                 }
-            }while (d > 1);
+            
+            } while (d > 1);
         }
 
         template <typename T>
         static void Merge(T array[], const int len, bool min2max = true)
         {
-            T * helper = new T[len];
+            T* helper = new T[len];
             if(helper)
                 Merge(array, helper, 0, len - 1, min2max);
             delete [] helper;
@@ -259,7 +263,7 @@ namespace data_structure
 
             for (int i = 0; i < 10; i++)
             {
-                delete temp[i];
+                delete [] temp[i];
             }
         }
 

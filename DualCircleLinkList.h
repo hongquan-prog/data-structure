@@ -66,7 +66,7 @@ namespace data_structure
             {
                 Node * first = this->m_header.next;
                 Node * last = first->pre;
-                Node * node = new Node;
+                Node * node = DualLinkList<T>::create();
                 if(node)
                 {
                     node->value = e;

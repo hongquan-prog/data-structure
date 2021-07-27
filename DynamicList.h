@@ -61,7 +61,7 @@ namespace data_structure
         // O(1)
         ~DynamicList()
         {
-            delete []this->m_array;
+            delete [] this->m_array;
         }
     };
 }

@@ -13,7 +13,7 @@ namespace data_structure
         // O(n)
         T* copy(T* array, int len, int newLen)
         {
-            T * obj = new T(newLen);
+            T * obj = new T[newLen];
             if(obj)
             {
                 int length = (len < newLen)?(len):(newLen);
@@ -88,6 +88,12 @@ namespace data_structure
         int length(void) const
         {
             return m_length;
+        }
+
+        // O(1)
+        ~DynamicArray()
+        {
+            delete [] this->m_array;
         }
     };
 }
