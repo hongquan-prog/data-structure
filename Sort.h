@@ -101,7 +101,7 @@ namespace data_structure
 
             while (child <= end)
             {
-                if ((child + 1 <= end) && (min2max) ? (array[child] < array[child + 1]) : ((array[child] > array[child + 1])))
+                if ((child + 1 <= end) && ((min2max) ? (array[child] < array[child + 1]) : (array[child] > array[child + 1])))
                 {
                     child++;
                 }

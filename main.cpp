@@ -36,9 +36,9 @@ int main(void)
 
     try
     {
-        bool min2_max = 1;
+        bool min2_max = 0;
         Sort::Heap(array, 12, min2_max);
-        // cout << Search::Binsearch(array, 10, 11, min2_max) << endl;
+        cout << Search::Bolock(array, 12, 259, 2) << endl;
         for(int i = 0; i < 12; i++)
         {
             cout<< array[i] << " ";
