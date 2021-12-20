@@ -1,12 +1,11 @@
 #ifndef ERR_H
 #define ERR_H
 
-#include <stdio.h>
 #include "err_def.h"
 
-#define LOG(errno) do{ \
+#define LOG(errno, info) do{ \
 	const char* str = error_to_str(errno); \
-	printf("[%s:%d] Errno: %s\n", __FILE__, __LINE__, str); \
+	printf("[%s:%d] Errno: %s: %s\n", __FILE__, __LINE__, str, info); \
 }while(0)
 
 typedef enum {

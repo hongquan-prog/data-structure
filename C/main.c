@@ -1,24 +1,48 @@
 #include "err.h"
-#include "list.h"
+#include "Vector.h"
+#include "LinkList.h"
+#include "CircleList.h"
+#include "DualLinkList.h"
 
+#define MAX_LEN 10
 
-int array[100];
+struct list_node
+{
+    struct dual_link_list_node next;
+    int data;
+};
+// 100个链表节点
+struct list_node  array1[MAX_LEN] = {0};
 
 int main()
 {
-    List* list = list_create(100);
-    for(int  i = 0; i < list_length(list); i++)
+    DualLinkList* list = dual_link_list_create();
+   
+    // 将数据插入表中
+    for(int i = 0; i < MAX_LEN; i++)
     {
-        array[i] = i;
-        list_set(list, 99 - i, (ListNode)&(array[i]));
+        array1[i].data = i;
+        list_insert(list, i, &array1[i]);
+        // printf("%x  ", &array1[i]);
     }
+    printf("list length:%d\n", list_length(list));
 
-    for(int i = 0; i < list_length(list); i++)
+    // while(list_length(list))
+    // {
+    //     DualLinkListNode ret = list_remove(list, 0);
+    //     printf("%x  ", ret);
+    // }
+    // printf("list length:%d\n", list_length(list));
+
+    // 输出链表中的值
+    printf("list:");
+    for(int i = 0; i < 2 * MAX_LEN; i++)
     {
-        ListNode ret = NULL;
-        list_get(list, i, &ret);
-        printf("%d\n", *((int *)ret));
+        struct list_node* ret = list_get(list, i);
+        if(ret)
+            printf("%d ", ret->data);
     }
+    printf("\n");
 
-    list_clear(list);
+    circle_list_clear(list);
 }
