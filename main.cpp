@@ -24,6 +24,7 @@
 #include "BTree.h"
 #include "MatrixGraph.h"
 #include "ListGraph.h"
+#include "RangeArray.h"
 #include <unistd.h>
 #include <cstring>
 
@@ -32,18 +33,22 @@ using namespace data_structure;
 
 int main(void)
 {
-    int array[12] = {59, 95, 7, 34, 60, 168, 171, 259, 372, 45, 88, 133};
+    RangeArray<float> array(-5, 5);
 
     try
     {
-        bool min2_max = 0;
-        Sort::Heap(array, 12, min2_max);
-        cout << Search::Bolock(array, 12, 259, 2) << endl;
-        for(int i = 0; i < 12; i++)
+
+        for(int i = array.lower(); i <= array.upper(); i++)
         {
-            cout<< array[i] << " ";
+            array[i] = i / 10.0;
         }
-        cout<< endl;
+
+        const RangeArray<float>& const_array = array;
+
+        for(int i = array.lower(); i <= array.upper(); i++)
+        {
+            cout << const_array[i] << endl;
+        }
     }
     catch(const Exception& exception)
     {

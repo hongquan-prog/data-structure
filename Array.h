@@ -54,14 +54,7 @@ namespace data_structure
 
         T operator[](int position) const
         {
-            if((position >= 0) && (position < length()))
-            {
-                return const_cast<Array<T>&>(*this)[position];
-            }
-            else
-            {
-                THROW_EXCEPTION(IndexOutofBoundsException, "[] failed!");
-            }
+            return const_cast<Array<T>&>(*this)[position];
         }
 
         T* array() const

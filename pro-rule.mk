@@ -12,15 +12,18 @@ all: $(DIR_BUILD) $(APP)
 $(APP):$(OBJS)
 	$(CC) -o $@ $^
 
+ifeq ("$(MAKECMDGOALS)", "all")
 -include $(DEPS)
+endif
+
 ifeq ("$(wildcard $(DIR_BUILD))","")
 $(DIR_BUILD)/%$(TYPE_DEP):$(DIR_BUILD) %$(TYPE_SRC)
 else
-$(DIR_BUILD)/%$(TYPE_DEP):%$(TYPE_SRC)
+$(DIR_BUILD)/%$(TYPE_DEP): %$(TYPE_SRC)
 endif
 	$(CC) $(CFLAGS) -MM -E $(filter %$(TYPE_SRC), $^) | sed 's,\(.*\)\.o[ :]*,$(DIR_BUILD)/\1.o $@:,g' > $@
 
-$(DIR_BUILD)/%$(TYPE_OBJ):%$(TYPE_SRC)
+$(DIR_BUILD)/%$(TYPE_OBJ): %$(TYPE_SRC)
 	$(CC) $(CFLAGS) -o $@ -c $(filter %$(TYPE_SRC), $^)
 
 $(DIR_BUILD):
